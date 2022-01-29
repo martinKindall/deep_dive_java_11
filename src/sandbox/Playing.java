@@ -1,13 +1,21 @@
 package sandbox;
 
+import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Playing {
+
+    protected void greeting() {}
+    void greeting2() {}
 
     public static void main(String... args) {
         float aValue = 10.0f;
@@ -116,6 +124,166 @@ public class Playing {
 
         List<Integer> someList2 = List.of(99, 66, 77, 88);
 //        someList2.sort((x, y) -> multiplier * y.compareTo(x));   // compile error, immutable list
+
+        Door door = new Door() {   // we can use the anonymous syntax on concrete classes too
+            public void something() {}
+        };
+//        door.something();   // but we cannot extend new methods not defined in the concrete class
+                              // if we used the type Door at the variable definition
+
+        // on the contrary, here it works, because the following object
+        // although uses the Door constructor, is not a Door type, so we can call something()
+        new Door() {
+            public void something() {}
+        }.something();
+
+        SomethingAnonymous algo = new SomethingAnonymous() {
+            @Override
+            public void show() {
+                System.out.println("hi");
+            }
+        };
+
+//        String line;
+//        Console c = System.console();
+//        if ((line = c.readLine()) != null) {   // this c.readLine throws a NullPointer Exceptin
+//            System.out.println("Your requested meal: " + line);
+//        }
+
+        Set<? extends RuntimeException> mySet = new TreeSet<RuntimeException>();
+        Set<? extends RuntimeException> mySet2 = new TreeSet<NullPointerException>();
+        Set<? extends RuntimeException> mySet3 = new HashSet<RuntimeException>();
+        Set<? extends RuntimeException> mySet4 = new HashSet<IllegalArgumentException>();
+
+        new Door() {
+            // we can
+            void existingMethod(int num) {
+                System.out.println("was here");
+            }
+            void setup() {}
+        }.setup();
+
+        new Door() {}.existingMethod();
+
+//        class RandomClass {}.new RandomClass();   // not allowed
+
+//        class Magician {
+//            protected class MagicWand {   // classes cannot be either protected nor private
+//                void abracadabra() {
+//                    System.out.println("Hocus pocus");
+//                }
+//            }
+//        }
+
+//        magic(Stream.empty());   // NoSuchElementException (No value present)
+        magic(Stream.iterate(1, x -> x++));   // this one returns 1 before the increment
+                                                    // so it's actually a stream of 1
+        magic(Stream.iterate(1, x -> ++x));
+//        magic(Stream.of(5, 10));   // NoSuchElementException (No value present)
+
+        List<Integer> dataStream = new ArrayList<>();
+//        IntStream.range(0, 100).serial().forEach(x -> dataStream.add(x));   // serial does not exist
+        IntStream.range(0, 100).parallel().forEach(x -> dataStream.add(x));
+        System.out.println("data 1 " + dataStream.size());   // size will be lower than 100 because of the
+        // parallel nature of the stream -> there is data loss
+
+        // all the following are alternatives that deal with this problem and gather successfully all values
+        List<Integer> dataStream2 = new ArrayList<>();
+        IntStream.range(0, 100).parallel().forEachOrdered(x -> dataStream2.add(x));
+        System.out.println("data 2 " + dataStream2.size());
+
+        List<Integer> dataStream3 = Collections.synchronizedList(new ArrayList<>());
+        IntStream.range(0, 100).parallel().forEach(x -> dataStream3.add(x));
+        System.out.println("data 3 " + dataStream3.size());
+
+        List<Integer> dataStream4 = new CopyOnWriteArrayList<>();
+        IntStream.range(0, 100).parallel().forEach(x -> dataStream4.add(x));
+        System.out.println("data 4 " + dataStream4.size());
+
+        List<Integer> dataStream5 = new ArrayList<>();
+        IntStream.range(0, 100).forEach(x -> dataStream5.add(x));
+        System.out.println("data 5 " + dataStream5.size());
+
+        List<Integer> dataStream6 = new ArrayList<>();
+        IntStream.range(0, 100).sequential().forEach(x -> dataStream6.add(x));
+        System.out.println("data 6 " + dataStream6.size());
+
+        // streams exercise
+
+        Predicate<String> empty = String::isEmpty;
+        Predicate<String> notEmpty = empty.negate();
+
+        // the following code does not terminate
+//        var result = Stream.generate(() -> "")
+//                .filter(notEmpty)
+//                .collect(Collectors.groupingBy(k -> k))
+//                .entrySet()
+//                .stream()
+//                .map(Map.Entry::getValue)
+//                .flatMap(Collection::stream)
+//                .collect(Collectors.partitioningBy(notEmpty));
+//        System.out.println(result);
+
+        char initial = 'a';
+        GenerateStrings gen = new GenerateStrings();
+        Supplier<String> supply = () -> gen.generate();
+
+        Stream.generate(supply)
+                .limit(5)
+                .collect(Collectors.toList())
+                .forEach(x -> System.out.println(x));
+
+        SomeInterface someThing = x -> x * 2;   // conforms to the startGame method in the interface
+        someThing.win();
+        someThing.win2();
+
+        AlsoALambda check = w -> w.length() > 5;
+//        check.nothing();   // does not compile, nothing is private
+        System.out.println(check.isLongerThan5("Mart"));
+        System.out.println(check.isLongerThan5("Martin"));
+    }
+
+    private static void magic (Stream<Integer> s) {
+        Optional o = s
+                .filter(x -> x < 5)
+                .limit(3)
+                .max((x, y) -> x - y);
+        System.out.println(o.get());
+    }
+}
+
+@FunctionalInterface
+interface SomeInterface {
+    public static void roll() { roll(); }
+    private int takeBreak() {
+        roll();
+        return 1;
+    }
+    int startGame(int players);
+//    default void win();   // does not compile, default methods need a body
+    default void win() {
+        System.out.println("I won!");
+    }
+
+    default void win2() {
+        System.out.println("I won 2!");
+    }
+//    static void end() { win(); }   // non static method called from static context
+    boolean equals(Object o);
+}
+
+interface AlsoALambda {
+    boolean isLongerThan5(String word);
+    private void nothing() {};
+}
+
+class GenerateStrings {
+    private String current = "";
+
+    String generate() {
+        String old = current;
+        current += "a";
+        return old;
     }
 }
 
@@ -189,4 +357,55 @@ class AutocloseableTest {
             System.out.println("File not found");
         }
     }
+}
+
+class Door {
+    void existingMethod() {
+        System.out.println("Was original");
+    }
+}
+interface SomethingAnonymous {
+    void show();
+}
+
+
+// simple generic example
+class Box<T> {
+    T value;
+
+    public Box(T value) {
+        this.value = value;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public static void main(String[] args) {
+        var one = new Box<String>("a string");
+        var two = new Box<Integer>(3);
+        System.out.print(one.getValue());
+        System.out.print(two.getValue());
+
+        new PrivateProtectedTest().greeting();   // although greeting is protected
+        new ExtendsProtected().greeting0();
+        new ExtendsProtected().greeting();
+    }
+}
+
+class PrivateProtectedTest {
+
+    void greeting0() {}
+    protected void greeting() {}
+    private void greeting2() {}
+
+    public static void main(String[] args) {
+        // both are allowed, as we are still inside the class
+        new PrivateProtectedTest().greeting();
+        new PrivateProtectedTest().greeting2();
+    }
+}
+
+class ExtendsProtected extends PrivateProtectedTest {
+
 }
