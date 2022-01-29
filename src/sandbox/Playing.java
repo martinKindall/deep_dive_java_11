@@ -1,10 +1,15 @@
 package sandbox;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 
 public class Playing {
 
-    public static void main(String[] args) {
+    public static void main(String... args) {
         float aValue = 10.0f;
 
         System.out.println("And the value is: " + aValue);
@@ -86,6 +91,31 @@ public class Playing {
                 }
             }
         }
+
+        int[] someArr = {6, 8, 9};
+        List<Integer> aList = new ArrayList<>();
+        aList.add(someArr[0]);
+        aList.add(someArr[2]);
+        aList.set(1, someArr[1]);
+        aList.remove(0);
+
+        System.out.println(aList);
+        System.out.println("C" + Arrays.compare(someArr, new int[] {6, 8, 9}));   // 0, neither greater nor smaller
+        System.out.println("M" + Arrays.mismatch(someArr, new int[] {6, 8, 9}));   // -1, no mismatch
+        System.out.println("M" + Arrays.mismatch(someArr, new int[] {6, 8, 10}));   // mismatch at index 2
+        System.out.println("M" + Arrays.mismatch(someArr, new int[] {}));   // mismatch at index 0
+        System.out.println("M" + Arrays.mismatch(someArr, new int[] {6}));   // mismatch at index 1
+
+        int multiplier = -1;
+        List<Integer> someList = new ArrayList<>(List.of(99, 66, 77, 88));
+        someList.sort((x, y) -> multiplier * y.compareTo(x));
+        someList.sort((x, y) -> {
+            return multiplier * y.compareTo(x);
+        });
+        System.out.println(someList);
+
+        List<Integer> someList2 = List.of(99, 66, 77, 88);
+//        someList2.sort((x, y) -> multiplier * y.compareTo(x));   // compile error, immutable list
     }
 }
 
@@ -138,6 +168,25 @@ class FindAllTadpoles {
 //            CanSwim tadpole = amphibian;   // works too
 //            Amphibian tadpole = amphibian;   // works too
             Object tadpole = amphibian;
+        }
+    }
+}
+
+class AutocloseableTest {
+
+    void test() {
+        //        try (StringBuilder reader = new StringBuilder()) {   // here we do have a compiler error
+        //            var animal = "dog";
+        //        } catch (Exception e || RuntimeException e) { // also here
+        //            System.out.println("c");
+        //        }
+
+        try (Scanner scanner = new Scanner(new File("test.txt"))) {
+            // this is the autoclosable feature to try resources in Java
+            // is this similar to python with ?
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("File not found");
         }
     }
 }
