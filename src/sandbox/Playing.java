@@ -3,6 +3,7 @@ package sandbox;
 import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -241,6 +242,21 @@ public class Playing {
 //        check.nothing();   // does not compile, nothing is private
         System.out.println(check.isLongerThan5("Mart"));
         System.out.println(check.isLongerThan5("Martin"));
+
+        Integer a = 3;
+        int b = 5;
+        System.out.println("Integer + int: " + (a + b));
+
+//        System.out.println(test((int i) -> i == 5));   // int cannot be used to define Integer in this case
+        System.out.println(test((Integer i) -> i == 5));
+        System.out.println(test((i) -> i == 5));   // using parentheses without type is also allowed
+        System.out.println(test((i) -> {
+            return i == 5;   // previous is syntax sugar of this
+        }));
+    }
+
+    private static boolean test(Predicate<Integer> p) {
+        return p.test(5);
     }
 
     private static void magic (Stream<Integer> s) {
@@ -360,6 +376,8 @@ class AutocloseableTest {
 }
 
 class Door {
+//    int case = 1;   // "case" cannot be the name of an attribute nor a method, it is reserved.
+
     void existingMethod() {
         System.out.println("Was original");
     }
@@ -408,4 +426,34 @@ class PrivateProtectedTest {
 
 class ExtendsProtected extends PrivateProtectedTest {
 
+}
+
+class ThrowingExceptions {
+
+//    void throwing() {   // does not compile because the exception is not handled
+//        throw new FileNotFoundException();
+//    }
+
+    void throwing() throws FileNotFoundException {   // exception declaration needed
+        throw new FileNotFoundException();
+    }
+
+    void anotherException() {  // RuntimeException does not need handling
+        // it is considered a system exception, thus it does not require handling
+        // because the client actually cannot do anything to recover
+
+        // we declare and handle exception which are recoverable
+        throw new RuntimeException();
+    }
+
+    public static void main(String[] args) {   // the exception is handled, so no declaration was needed
+        try {
+            new ThrowingExceptions().throwing();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("There was an error");
+        }
+
+        new ThrowingExceptions().anotherException();
+    }
 }
