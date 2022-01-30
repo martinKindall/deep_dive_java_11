@@ -115,12 +115,12 @@ public class Playing {
         System.out.println("M" + Arrays.mismatch(someArr, new int[] {}));   // mismatch at index 0
         System.out.println("M" + Arrays.mismatch(someArr, new int[] {6}));   // mismatch at index 1
 
-        int multiplier = -1;
+        int multiplier = 1;
+        multiplier *= -1;
         List<Integer> someList = new ArrayList<>(List.of(99, 66, 77, 88));
-        someList.sort((x, y) -> multiplier * y.compareTo(x));
-        someList.sort((x, y) -> {
-            return multiplier * y.compareTo(x);
-        });
+//        someList.sort((x, y) -> multiplier * y.compareTo(x));   // does not compile, because
+        // multiplier is not final
+
         System.out.println(someList);
 
         List<Integer> someList2 = List.of(99, 66, 77, 88);
@@ -169,7 +169,7 @@ public class Playing {
 //        class RandomClass {}.new RandomClass();   // not allowed
 
 //        class Magician {
-//            protected class MagicWand {   // classes cannot be either protected nor private
+//            protected class MagicWand {   // cannot be protected here (inside static maybe)
 //                void abracadabra() {
 //                    System.out.println("Hocus pocus");
 //                }
@@ -449,11 +449,98 @@ class ThrowingExceptions {
     public static void main(String[] args) {   // the exception is handled, so no declaration was needed
         try {
             new ThrowingExceptions().throwing();
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {   // multicatch notation
+//        } catch (Exception | RuntimeException e) {   // does not compile, multicatch must be disjoint
             e.printStackTrace();
             System.out.println("There was an error");
         }
 
         new ThrowingExceptions().anotherException();
+    }
+}
+
+class SuperCall {
+
+    SuperCall() {
+        System.out.println("Default parent constructor called.");
+    }
+    SuperCall(int a) {
+        System.out.println("Parent constructor with argument was called: " + a);
+    }
+}
+
+class MegaCall extends SuperCall {
+    MegaCall() {
+        super(10);
+        System.out.println("Child's simple constructor is called");
+    }
+
+    MegaCall(int a) {
+        System.out.println("Child's constructor being called: " + a);
+    }
+
+    public static void main(String[] args) {
+        new MegaCall(5);   // this calls super() implicitly
+        new MegaCall();   // this calls super(value) explicitly
+    }
+}
+
+class MagicianTests {
+    public static void main(String[] args) {
+        new Magician.MagicWand();   // static inner class
+        Magician.MagicWandNonStatic wand = new Magician().new MagicWandNonStatic();   // non static inner class
+        wand.abracadabra();
+        wand.printMageName();
+    }
+}
+
+class Magician {
+    protected String name = "Sirius Black";
+
+    static class MagicWand {
+        void abracadabra() {
+            System.out.println("Hocus pocus");
+        }
+        void printMageName() {
+//            System.out.println("My owner is " + name);   // not available from static context
+            cannotBeProtected();   // but we can call static methods
+//            something();   // same as name, non-static context method
+        }
+    }
+
+    class MagicWandNonStatic {
+        void abracadabra() {
+            System.out.println("Hocus pocus");
+        }
+        void printMageName() {
+            System.out.println("My owner is " + name);   // here we access the property of outer class
+            something();   // outer class method, no problem, even if it is private
+            cannotBeProtected();  // static methods can be called within non-static, not otherwise
+        }
+    }
+
+    public static void main(String[] args) {
+        new MagicWand().abracadabra();
+    }
+
+    void something() {
+        class Magician2 {
+            class MagicWand {
+                void abracadabra() {
+                    System.out.println("Hocus pocus");
+                }
+            }
+        }
+
+        new Magician2().new MagicWand().abracadabra();
+    }
+
+    static void cannotBeProtected() {
+        class Magician2 {
+//            protected class MagicWand {   // also cannot be protected here
+//                void abracadabra() {
+//                    System.out.println("Hocus pocus");
+//                }
+            }
     }
 }
