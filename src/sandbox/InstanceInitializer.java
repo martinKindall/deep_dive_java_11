@@ -7,7 +7,8 @@ public class InstanceInitializer {
 
     static {
         System.out.println("Second init logic, this is static.");
-        System.out.println("It runs before the main method in this case.");
+        System.out.println("It runs before the inner main method, but after");
+        System.out.println("The main method of the 'Another' class.");
     }
 
     InstanceInitializer() {
@@ -22,6 +23,13 @@ public class InstanceInitializer {
         System.out.println("This runs before the constructor logic");
     }
 
+    public static void main(String[] args) {
+        System.out.println("Hi there");
+        new InstanceInitializer();
+    }
+}
+
+class Another {
     public static void main(String[] args) {
         System.out.println("Hi there");
         new InstanceInitializer();
