@@ -11,6 +11,10 @@ public class ProtectedInsidePackage {
         new Playing().greeting();
         new Playing().greeting2();
     }
+
+    public static void main(String[] args) {
+        new NoPublic().greetings();   // package private class can be used here
+    }
 }
 
 class Experiment {
