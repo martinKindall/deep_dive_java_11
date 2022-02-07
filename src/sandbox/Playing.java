@@ -253,6 +253,35 @@ public class Playing {
         System.out.println(test((i) -> {
             return i == 5;   // previous is syntax sugar of this
         }));
+
+        short something6 = 'a';
+        char mammal = 83;
+        char mammal2 = (short) 83;  // makes no difference from the previous line
+//        short sumethin = 65535;   // does not compile, too big
+//        char sumething2 = -1;   // also does not compile, char does not have negative
+
+        System.out.println(something6);
+        System.out.println(mammal);
+        System.out.println(mammal2);
+
+        long numer10 = 10L;
+
+        int binaryFormat = 0b1010;   // numbe 10
+        int hexFormat = 0x0a;  // number 10
+
+//        int intCannotBeNull = null;   // primitive types cannot be null
+        String butStringCanBeNull = null;
+
+        int[] anArray = new int[10];
+        int size = anArray.length;   // arrays do have length as attribute
+
+        String someWord = "Hello";
+        int wordLength = someWord.length();   // Strings do have a length method instead
+        int _anotherVar = 10;
+
+        int num, num2;
+
+//        int number1, int number2;   // does not compile
     }
 
     private static boolean test(Predicate<Integer> p) {
