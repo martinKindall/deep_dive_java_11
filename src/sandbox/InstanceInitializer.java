@@ -56,7 +56,7 @@ class DataClass {
 
 class Egg {
     Egg() {
-        number = 5;   // does not matter if this assignation is written
+//        number = 5;   // does not matter if this assignation is written
         // lines before the variable declaration of "number" (line 67)
     }
 
@@ -68,6 +68,7 @@ class Egg {
         number = 10;   // also does not fail, although number is defined afterwards
 //        System.out.println(number);   // weird, that it is not allowed to read the variable before line 71.
         // but it is posible to set it to 10.
+        // this assignment has anyway no effect, because it is overriden by the 2 following ones.
     }
     private int number = 3;
     {
