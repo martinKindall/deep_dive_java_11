@@ -18,5 +18,13 @@ public class NumericPromotion {
         double num2 = 3.0;
         var res2 = num  + num2;   // promoted to double
         System.out.println(res2);
+
+//        long avalue = 1929192913913193921;   // although this number fits in a long
+        // this does not compile because the compiler thinks of it as an int.
+        long correctValue = 1929192913913193921L;   // adding the L instructs the compiler
+        // to use a long and it works.Another
+//        long correctValue2 = (long) 1929192913913193921;   // casting does not help here
+
+        int somenum = (int) 1.0;   // this works
     }
 }
