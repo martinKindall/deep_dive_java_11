@@ -26,5 +26,27 @@ public class NumericPromotion {
 //        long correctValue2 = (long) 1929192913913193921;   // casting does not help here
 
         int somenum = (int) 1.0;   // this works
+
+        long goat = 10L;
+        short sheep = 1;
+
+        long res3 = sheep + goat;
+//        sheep = sheep + goat;   // does not compile as expected
+        sheep += goat;   // but this does work, compilator does casting automatically
+        System.out.println(sheep);
+
+//        boolean output = true == 3;   // does not compile
+//        boolean comp = new ObjA() == new ObjB();   // does not compile
+        Empty a1 = new ObjA();
+        Empty a2 = new ObjB();
+        boolean comp2 = a1 == a2;   // we can compare objects of the same type
+
+        Empty a3 = new ObjA();
+        ObjB a4 = new ObjB();
+        boolean comp23 = a3 == a4;   // and this works too.
     }
 }
+
+interface Empty {}
+class ObjA implements Empty {}
+class ObjB implements Empty {}
